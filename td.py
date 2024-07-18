@@ -116,6 +116,18 @@ def edit_todo_file(todo_file_path: str):
     if is_git_repo(os.path.dirname(todo_file_path)):
         git_pull(os.path.dirname(todo_file_path))
     os.system(f"{TODO_EDITOR} {todo_file_path}")
+    log_edit_todo_file(todo_file_path)
+
+
+def log_edit_todo_file(todo_file_path: str):
+    todo_name = (
+        todo_file_path.replace(TODO_FILE_PATH, "")
+        .replace("todo_", "")
+        .replace(".md", "")
+    )
+    logging.info(f"Edit todo file: {todo_name}")
+    if is_git_repo(TODO_FILE_PATH):
+        git_commit_and_push(TODO_FILE_PATH, f"Edit todo file: {todo_name}")
 
 
 def list_all_todo_files():

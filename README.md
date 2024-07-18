@@ -99,10 +99,9 @@ Once set up, use the following commands to manage your todo lists:
   td tag <task-index> -p <new-priority>
   ```
 
-## Contributing
+## Credits
 
-- Fork the repository, create a new branch, and make your contributions.
-- Open a pull request describing your changes.
+This project was inspired by a comment of [codazoda](https://news.ycombinator.com/user?id=codazoda) on [Hacker News](https://news.ycombinator.com/item?id=40950584).
 
 ## License
 
