@@ -44,13 +44,22 @@ Follow these steps to set up the todo CLI on your system:
 5. **Configuration**
 
 - Configure the following variables in `.env`:
+
+  #### Directory (mandatory)
+
   - TODO_FILE_PATH: Path to the directory where todo files will be stored.
-  - DEFAULT_TODO_FILE_NAME: Default name for todo files.
-  - TODO_EDITOR: Your preferred text editor for editing todo files.
-  - LOG_FILE_NAME: Name of the log file.
-  - MAX_LIST_ITEMS: Maximum number of tasks to display in lists.
-  - GITHUB_REPO: Optional. A github repo used to store your todo lists.
-  - GITHUB_TOKEN: Optional. A [Github access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token) that has read and write access to a github repo used to store your todo lists.
+
+  #### Parameters (default values set)
+
+  - DEFAULT_TODO_FILE_NAME: Default name for todo files. (default)
+  - TODO_EDITOR: Your preferred text editor for editing todo files. (nano)
+  - LOG_FILE_NAME: Name of the log file. (todo.log)
+  - MAX_LIST_ITEMS: Maximum number of tasks to display in lists. (15)
+
+  #### Github Sync (Optional)
+
+  - GITHUB_REPO: A github repo used to store your todo lists.
+  - GITHUB_TOKEN: A [Github access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token) that has read and write access to a github repo used to store your todo lists.
 
 ## Usage
 
