@@ -49,6 +49,8 @@ Follow these steps to set up the todo CLI on your system:
   - TODO_EDITOR: Your preferred text editor for editing todo files.
   - LOG_FILE_NAME: Name of the log file.
   - MAX_LIST_ITEMS: Maximum number of tasks to display in lists.
+  - GITHUB_REPO: Optional. A github repo used to store your todo lists.
+  - GITHUB_TOKEN: Optional. A [Github access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token) that has read and write access to a github repo used to store your todo lists.
 
 ## Usage
 
