@@ -41,7 +41,7 @@ Follow these steps to set up the todo CLI on your system:
    sh setup.sh
    ```
 
-5. **Configuration**
+## Configuration
 
 - Configure the following variables in `.env`:
 
@@ -120,6 +120,10 @@ Once set up, use the following commands to manage your todo lists:
 ## Credits
 
 This project was inspired by a comment of [codazoda](https://news.ycombinator.com/user?id=codazoda) on [Hacker News](https://news.ycombinator.com/item?id=40950584).
+
+## Buy me a coffee
+
+If you find this tool helpful, you can buy me a coffee [here](https://buymeacoffee.com/sahbic) ☕.
 
 ## License
 
