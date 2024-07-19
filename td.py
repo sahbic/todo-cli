@@ -278,6 +278,15 @@ def tag_task(todo_file_path: str, task_index: int, priority: int):
         typer.echo("Invalid task number.")
 
 
+def next_task(todo_file_path: str):
+    tasks = get_tasks(todo_file_path)
+    if tasks:
+        next_task = tasks[0].strip()
+        typer.echo(f"Next task: {next_task}")
+    else:
+        typer.echo("No tasks in To Do.")
+
+
 ## CLI functions
 
 
@@ -321,6 +330,7 @@ def mark(
 
 
 @app.command()
+@app.command("ls", hidden=True)
 def list(
     todo_file_name: str = typer.Option(
         DEFAULT_TODO_FILE_NAME, "-f", "--todo-file-name", help="Name of the todo file"
@@ -338,6 +348,7 @@ def list_all():
 
 
 @app.command()
+@app.command("mv", hidden=True)
 def move(
     task_index: int,
     source_todo: str = typer.Option(
@@ -373,6 +384,18 @@ def tag(
         os.path.join(TODO_FILE_PATH, f"todo_{todo_file_name}.md")
     )
     tag_task(todo_file_path, task_index, priority)
+
+
+@app.command()
+def next(
+    todo_file_name: str = typer.Option(
+        DEFAULT_TODO_FILE_NAME, "-f", "--todo-file-name", help="Name of the todo file"
+    ),
+):
+    todo_file_path = os.path.expanduser(
+        os.path.join(TODO_FILE_PATH, f"todo_{todo_file_name}.md")
+    )
+    next_task(todo_file_path)
 
 
 if __name__ == "__main__":

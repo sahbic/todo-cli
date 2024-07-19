@@ -73,13 +73,17 @@ Once set up, use the following commands to manage your todo lists:
 
   Optional: Specify priority with `-p` or `--priority`.
 
-- **Edit a todo file:**
+- **List tasks:**
 
   ```bash
-  td edit
+  td list
   ```
 
-  Opens the todo file in your specified editor.
+- **Next most important task:**
+
+  ```bash
+  td next
+  ```
 
 - **Mark a task as done:**
 
@@ -87,11 +91,19 @@ Once set up, use the following commands to manage your todo lists:
   td mark <task-index>
   ```
 
-- **List tasks:**
+- **Tag a task with a priority:**
 
   ```bash
-  td list
+  td tag <task-index> -p <new-priority>
   ```
+
+- **Edit a todo file:**
+
+  ```bash
+  td edit
+  ```
+
+  Opens the todo file in your specified editor.
 
 - **List all todo files:**
 
@@ -103,11 +115,6 @@ Once set up, use the following commands to manage your todo lists:
 
   ```bash
   td move <task-index> -s <source-todo> -d <destination-todo>
-  ```
-
-- **Tag a task with a priority:**
-  ```bash
-  td tag <task-index> -p <new-priority>
   ```
 
 ## Credits
