@@ -26,7 +26,7 @@ Follow these steps to set up the todo CLI on your system:
 
    ```bash
    python3 -m venv venv
-   source venv/bin/activate  # Activate the virtual environment
+   source venv/bin/activate  # On Windows use `venv\Scripts\activate`
    ```
 
 3. **Install Dependencies:**
@@ -116,6 +116,10 @@ Once set up, use the following commands to manage your todo lists:
   ```bash
   td move <task-index> -s <source-todo> -d <destination-todo>
   ```
+
+## Mobile
+
+I'am also developing a [Telegram bot](https://github.com/sahbic/todo-bot) to interact with the todo list from mobile.
 
 ## Credits
 
