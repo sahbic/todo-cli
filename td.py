@@ -9,7 +9,7 @@ import typer
 from dotenv import load_dotenv
 from typing import Optional
 
-app = typer.Typer(add_completion=False)
+app = typer.Typer(add_completion=False, help="An awesome todo list CLI app.")
 load_dotenv()
 
 TODO_FILE_PATH = os.getenv("TODO_FILE_PATH")
@@ -97,9 +97,20 @@ def is_git_repo(path: str) -> bool:
     )
 
 
+def update_file_from_github(todo_file_path: str):
+    # Fetch the latest content from GitHub
+    content = get_file_content_github(todo_file_path)
+
+    # Write the content to the local file
+    with open(todo_file_path, "w") as f:
+        f.write(content)
+    return content
+
+
 def log_update_github(file_path: str, message: str):
     if is_git_repo(TODO_FILE_PATH) and GITHUB_TOKEN and GITHUB_REPO:
         file_name = os.path.basename(file_path)
+        update_file_from_github(LOG_FILE_PATH)
         logging.info(f"{file_name} - {message}")
         update_github(LOG_FILE_PATH, f"Update: {file_path} - {message}")
         update_github(file_path, message)
@@ -122,6 +133,9 @@ def add_task(todo_file_path: str, task: str, priority: int = 4):
     create_todo_file_if_not_exists(todo_file_path)
     task_line = f"{priority}:{task}\n"
 
+    if is_git_repo(TODO_FILE_PATH) and GITHUB_TOKEN and GITHUB_REPO:
+        update_file_from_github(todo_file_path)
+
     with open(todo_file_path, "r") as f:
         lines = f.readlines()
 
@@ -139,16 +153,14 @@ def add_task(todo_file_path: str, task: str, priority: int = 4):
 
 
 def mark_task_as_done(todo_file_path: str, task_index: int):
-    create_todo_file_if_not_exists(todo_file_path)
+    tasks = get_tasks(todo_file_path)
 
     with open(todo_file_path, "r") as f:
         lines = f.readlines()
 
-    tasks = sorted(lines, key=lambda x: int(x.split(":")[0]))
-
     if 1 <= task_index <= len(tasks):
         completed_task = tasks[task_index - 1].strip()
-        lines.remove(tasks[task_index - 1])
+        lines.remove(f"{completed_task}\n")
 
         with open(todo_file_path, "w") as f:
             f.writelines(lines)
@@ -164,12 +176,7 @@ def get_tasks(todo_file_path: str):
     create_todo_file_if_not_exists(todo_file_path)
 
     if is_git_repo(TODO_FILE_PATH) and GITHUB_TOKEN and GITHUB_REPO:
-        # Fetch the file content from GitHub
-        content = get_file_content_github(todo_file_path)
-
-        # update the local file with the content from GitHub
-        with open(todo_file_path, "w") as f:
-            f.write(content)
+        content = update_file_from_github(todo_file_path)
     else:
         with open(todo_file_path, "r") as f:
             content = f.read()
@@ -190,12 +197,7 @@ def list_tasks(todo_file_path: str):
 
 def edit_todo_file(todo_file_path: str):
     if is_git_repo(TODO_FILE_PATH) and GITHUB_TOKEN and GITHUB_REPO:
-        # Fetch the latest content from GitHub
-        content = get_file_content_github(todo_file_path)
-
-        # Write the content to the local file
-        with open(todo_file_path, "w") as f:
-            f.write(content)
+        update_file_from_github(todo_file_path)
 
     os.system(f"{TODO_EDITOR} {todo_file_path}")
     file_name = os.path.basename(todo_file_path)
@@ -290,7 +292,7 @@ def next_task(todo_file_path: str):
 ## CLI functions
 
 
-@app.command()
+@app.command(help="Add a new task to the todo list")
 def add(
     task: str,
     priority: int = typer.Option(4, "-p", "--priority", help="Priority of the task"),
@@ -304,32 +306,7 @@ def add(
     add_task(todo_file_path, task, priority)
 
 
-@app.command()
-def edit(
-    todo_file_name: str = typer.Option(
-        DEFAULT_TODO_FILE_NAME, "-f", "--todo-file-name", help="Name of the todo file"
-    ),
-):
-    todo_file_path = os.path.expanduser(
-        os.path.join(TODO_FILE_PATH, f"todo_{todo_file_name}.md")
-    )
-    edit_todo_file(todo_file_path)
-
-
-@app.command()
-def mark(
-    task_index: int,
-    todo_file_name: str = typer.Option(
-        DEFAULT_TODO_FILE_NAME, "-f", "--todo-file-name", help="Name of the todo file"
-    ),
-):
-    todo_file_path = os.path.expanduser(
-        os.path.join(TODO_FILE_PATH, f"todo_{todo_file_name}.md")
-    )
-    mark_task_as_done(todo_file_path, task_index)
-
-
-@app.command()
+@app.command(help="List tasks in the todo list (alias: ls)")
 @app.command("ls", hidden=True)
 def list(
     todo_file_name: str = typer.Option(
@@ -342,12 +319,65 @@ def list(
     list_tasks(todo_file_path)
 
 
-@app.command()
+@app.command(help="Get the next highest priority task in the todo list")
+def next(
+    todo_file_name: str = typer.Option(
+        DEFAULT_TODO_FILE_NAME, "-f", "--todo-file-name", help="Name of the todo file"
+    ),
+):
+    todo_file_path = os.path.expanduser(
+        os.path.join(TODO_FILE_PATH, f"todo_{todo_file_name}.md")
+    )
+    next_task(todo_file_path)
+
+
+@app.command(help="Mark a task as done")
+def mark(
+    task_index: int,
+    todo_file_name: str = typer.Option(
+        DEFAULT_TODO_FILE_NAME, "-f", "--todo-file-name", help="Name of the todo file"
+    ),
+):
+    todo_file_path = os.path.expanduser(
+        os.path.join(TODO_FILE_PATH, f"todo_{todo_file_name}.md")
+    )
+    mark_task_as_done(todo_file_path, task_index)
+
+
+@app.command(help="Tag a task with a new priority")
+def tag(
+    task_index: int,
+    priority: int = typer.Option(
+        4, "-p", "--priority", help="New priority for the task"
+    ),
+    todo_file_name: str = typer.Option(
+        DEFAULT_TODO_FILE_NAME, "-f", "--todo-file-name", help="Name of the todo file"
+    ),
+):
+    todo_file_path = os.path.expanduser(
+        os.path.join(TODO_FILE_PATH, f"todo_{todo_file_name}.md")
+    )
+    tag_task(todo_file_path, task_index, priority)
+
+
+@app.command(help="Edit the todo list")
+def edit(
+    todo_file_name: str = typer.Option(
+        DEFAULT_TODO_FILE_NAME, "-f", "--todo-file-name", help="Name of the todo file"
+    ),
+):
+    todo_file_path = os.path.expanduser(
+        os.path.join(TODO_FILE_PATH, f"todo_{todo_file_name}.md")
+    )
+    edit_todo_file(todo_file_path)
+
+
+@app.command(help="List all todo files")
 def list_all():
     list_all_todo_files()
 
 
-@app.command()
+@app.command(help="Move a task from one todo list to another (alias: mv)")
 @app.command("mv", hidden=True)
 def move(
     task_index: int,
@@ -368,34 +398,6 @@ def move(
         os.path.join(TODO_FILE_PATH, f"todo_{dest_todo}.md")
     )
     move_task(source_todo_file_path, task_index, dest_todo_file_path)
-
-
-@app.command()
-def tag(
-    task_index: int,
-    priority: int = typer.Option(
-        4, "-p", "--priority", help="New priority for the task"
-    ),
-    todo_file_name: str = typer.Option(
-        DEFAULT_TODO_FILE_NAME, "-f", "--todo-file-name", help="Name of the todo file"
-    ),
-):
-    todo_file_path = os.path.expanduser(
-        os.path.join(TODO_FILE_PATH, f"todo_{todo_file_name}.md")
-    )
-    tag_task(todo_file_path, task_index, priority)
-
-
-@app.command()
-def next(
-    todo_file_name: str = typer.Option(
-        DEFAULT_TODO_FILE_NAME, "-f", "--todo-file-name", help="Name of the todo file"
-    ),
-):
-    todo_file_path = os.path.expanduser(
-        os.path.join(TODO_FILE_PATH, f"todo_{todo_file_name}.md")
-    )
-    next_task(todo_file_path)
 
 
 if __name__ == "__main__":
