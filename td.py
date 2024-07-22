@@ -19,7 +19,7 @@ LOG_FILE_NAME = os.getenv("LOG_FILE_NAME")
 MAX_LIST_ITEMS = int(os.getenv("MAX_LIST_ITEMS"))
 GITHUB_REPO = os.getenv("GITHUB_REPO")
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
-*_, REPO_OWNER, REPO_NAME = GITHUB_REPO.split("/")
+*_, REPO_OWNER, REPO_NAME = GITHUB_REPO.split("/") if GITHUB_REPO else [None, None, None]
 LOG_FILE_PATH = os.path.join(TODO_FILE_PATH, LOG_FILE_NAME)
 
 if not TODO_FILE_PATH:
@@ -134,7 +134,11 @@ def add_task(todo_file_path: str, task: str, priority: int = 4):
     task_line = f"{priority}:{task}\n"
 
     if is_git_repo(TODO_FILE_PATH) and GITHUB_TOKEN and GITHUB_REPO:
-        update_file_from_github(todo_file_path)
+        try:
+            update_file_from_github(todo_file_path)
+        except requests.HTTPError as e:
+            if e.response.status_code == 404:
+                update_file_github(os.path.basename(todo_file_path), "", "Create new todo list")
 
     with open(todo_file_path, "r") as f:
         lines = f.readlines()
